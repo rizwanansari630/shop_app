@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/UiUtils.dart';
+import 'package:flutter_complete_guide/providers/products.dart';
+import 'package:provider/provider.dart';
 
 
 class ProductDetailScreen extends StatelessWidget {
@@ -11,10 +13,10 @@ class ProductDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productId = ModalRoute.of(context).settings.arguments;
-
+    final productsDetail= Provider.of<Products>(context).findProductById(productId);
 
     return Scaffold(
-      appBar: buildAppBar('product detail page'),
+      appBar: buildAppBar(productsDetail.title),
     );
   }
 }
