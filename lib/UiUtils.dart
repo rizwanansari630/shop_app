@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
-Widget buildAppBar(String title){
-  return AppBar(title: Text(title),);
+Widget buildAppBar(String title, bool addPopupMenu) {
+  return AppBar(
+    title: Text(title),
+  );
 }

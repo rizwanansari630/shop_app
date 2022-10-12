@@ -3,6 +3,9 @@ import 'package:flutter_complete_guide/models/product.dart';
 import 'package:flutter_complete_guide/screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/cart.dart';
+import 'badge.dart';
+
 class ProductItem extends StatelessWidget {
   openProductDetailPage(BuildContext context, String productId) {
     Navigator.of(context)
@@ -12,6 +15,7 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context, listen: false);
+    final cart = Provider.of<Cart>(context);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -46,10 +50,27 @@ class ProductItem extends StatelessWidget {
               product.title,
               textAlign: TextAlign.center,
             ),
-            trailing: IconButton(
-                icon: Icon(Icons.shopping_cart_outlined),
-                onPressed: () {},
-                color: Theme.of(context).accentColor),
+            trailing: Consumer<Cart>(
+              builder: ((context, cart, ch) {
+                return cart.productCount(product.id) == 0
+                    ? IconButton(
+                        icon: Icon(Icons.shopping_cart_outlined),
+                        onPressed: () {
+                          cart.addCartItem(
+                              product.id, product.price, product.title);
+                        },
+                        color: Theme.of(context).accentColor)
+                    : Badge(
+                        child: ch,
+                        value: cart.productCount(product.id).toString());
+              }),
+              child: IconButton(
+                  icon: Icon(Icons.shopping_cart_outlined),
+                  onPressed: () {
+                    cart.addCartItem(product.id, product.price, product.title);
+                  },
+                  color: Theme.of(context).accentColor),
+            ),
           ),
         ),
       ),
