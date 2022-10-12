@@ -34,9 +34,7 @@ class Cart with ChangeNotifier {
   }
 
   void addCartItem(String productId, double price, String title) {
-    print('add items');
     if (_items.containsKey(productId)) {
-      print('update items');
       items.update(
           productId,
           (existingCartItem) => CartItem(
@@ -44,9 +42,7 @@ class Cart with ChangeNotifier {
               title: existingCartItem.title,
               quantity: existingCartItem.quantity++,
               price: existingCartItem.price));
-      print('product qanty ${_items[productId].quantity}');
     } else {
-      print('putIfAbsent items');
       _items.putIfAbsent(
           productId,
           () => CartItem(
@@ -58,15 +54,15 @@ class Cart with ChangeNotifier {
     notifyListeners();
   }
 
-  List<String> getAllAddedProductId(){
+  List<String> getAllAddedProductId() {
     return _items.keys.toList();
   }
 
-   CartItem cartItemById(String productId){
+  CartItem cartItemById(String productId) {
     return _items[productId];
   }
 
-  double get totalAmount{
+  double get totalAmount {
     var total = 0.0;
     _items.forEach((key, cartItem) {
       total += cartItem.price * cartItem.quantity;
@@ -74,8 +70,26 @@ class Cart with ChangeNotifier {
     return total;
   }
 
-  void removeItem(String productId){
+  void removeItem(String productId) {
     _items.remove(productId);
+    notifyListeners();
+  }
+
+  void removeCartItem(String productId) {
+    if (_items.isEmpty) {
+      return;
+    }
+    if (items.length > 1) {
+      _items.update(productId, (existingItem) {
+        return CartItem(
+            title: existingItem.title,
+            id: existingItem.id,
+            price: existingItem.price,
+            quantity: existingItem.quantity - 1);
+      });
+    }else{
+      items.remove(productId);
+    }
     notifyListeners();
   }
 }

@@ -58,6 +58,22 @@ class ProductItem extends StatelessWidget {
                         onPressed: () {
                           cart.addCartItem(
                               product.id, product.price, product.title);
+                          Scaffold.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Item added to the cart'),
+                              duration: Duration(seconds: 2),
+                              padding: EdgeInsets.only(
+                                  left: 15, top: 20, bottom: 20),
+                              elevation: 4,
+                              backgroundColor:
+                                  Theme.of(context).primaryColorLight,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(25),
+                                ),
+                              ),
+                            ),
+                          );
                         },
                         color: Theme.of(context).accentColor)
                     : Badge(
@@ -65,11 +81,36 @@ class ProductItem extends StatelessWidget {
                         value: cart.productCount(product.id).toString());
               }),
               child: IconButton(
-                  icon: Icon(Icons.shopping_cart_outlined),
-                  onPressed: () {
-                    cart.addCartItem(product.id, product.price, product.title);
-                  },
-                  color: Theme.of(context).accentColor),
+                icon: Icon(Icons.shopping_cart_outlined),
+                onPressed: () {
+                  cart.addCartItem(product.id, product.price, product.title);
+                  Scaffold.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Item added to the cart',
+                        style: TextStyle(
+                            color: Theme.of(context).primaryColorDark),
+                      ),
+                      action: SnackBarAction(
+                          onPressed: () {
+                            cart.removeCartItem(product.id);
+                          },
+                          label: 'UNDO',
+                          textColor: Theme.of(context).primaryColor),
+                      duration: Duration(seconds: 2),
+                      padding: EdgeInsets.only(left: 15, top: 20, bottom: 20),
+                      elevation: 4,
+                      backgroundColor: Theme.of(context).primaryColorLight,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(25),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                color: Theme.of(context).accentColor,
+              ),
             ),
           ),
         ),
