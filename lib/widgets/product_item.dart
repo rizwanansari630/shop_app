@@ -58,7 +58,8 @@ class ProductItem extends StatelessWidget {
                         onPressed: () {
                           cart.addCartItem(
                               product.id, product.price, product.title);
-                          Scaffold.of(context).showSnackBar(
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Item added to the cart'),
                               duration: Duration(seconds: 2),
@@ -84,7 +85,8 @@ class ProductItem extends StatelessWidget {
                 icon: Icon(Icons.shopping_cart_outlined),
                 onPressed: () {
                   cart.addCartItem(product.id, product.price, product.title);
-                  Scaffold.of(context).showSnackBar(
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
                         'Item added to the cart',
