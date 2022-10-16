@@ -10,7 +10,7 @@ class CartItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cart = Provider.of<Cart>(context, listen: false);
+    final cart = Provider.of<Cart>(context);
     final cartItem = cart.cartItemById(productId);
     // final double totalPrice = productPrice * productQuantity;
     return Dismissible(
