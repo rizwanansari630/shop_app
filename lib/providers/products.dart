@@ -59,4 +59,10 @@ class Products with ChangeNotifier {
    _items[productToUpdate] = product;
    notifyListeners();
   }
+
+  void deleteProduct(String productId){
+    var productIndex = _items.indexWhere((product) => product.id == productId);
+    _items.removeAt(productIndex);
+    notifyListeners();
+  }
 }

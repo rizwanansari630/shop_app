@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_complete_guide/providers/products.dart';
 import 'package:flutter_complete_guide/screens/edit_product_screen.dart';
+import 'package:provider/provider.dart';
 
 class UserProductItem extends StatelessWidget {
   final String title;
@@ -10,6 +12,7 @@ class UserProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final product = Provider.of<Products>(context);
     return ListTile(
       contentPadding: EdgeInsets.all(5),
       leading: CircleAvatar(
@@ -27,7 +30,9 @@ class UserProductItem extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.delete),
             color: Colors.red,
-            onPressed: () {},
+            onPressed: () {
+              product.deleteProduct(productId);
+            },
           ),
         ]),
       ),
