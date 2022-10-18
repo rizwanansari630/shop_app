@@ -15,28 +15,39 @@ class UserProductsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('User Products'),
-        actions: [IconButton(onPressed: (){
-          Navigator.of(context).pushNamed(EditProductScreen.routeName);
-        }, icon: Icon(Icons.add))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(EditProductScreen.routeName);
+              },
+              icon: Icon(Icons.add))
+        ],
       ),
       drawer: AppDrawer(),
-      body: Padding(
-          padding: EdgeInsets.all(10),
-          child: ListView.builder(
-            itemBuilder: (context, index) {
-              return Column(
-                children: [
-                  UserProductItem(
-                    title: products[index].title,
-                    imgUrl: products[index].imageUrl,
-                    productId: products[index].id,
-                  ),
-                  Divider()
-                ],
-              );
-            },
-            itemCount: products.length,
-          )),
+      body: RefreshIndicator(
+        onRefresh: () => _refreshProductList(context),
+        child: Padding(
+            padding: EdgeInsets.all(10),
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    UserProductItem(
+                      title: products[index].title,
+                      imgUrl: products[index].imageUrl,
+                      productId: products[index].id,
+                    ),
+                    Divider()
+                  ],
+                );
+              },
+              itemCount: products.length,
+            )),
+      ),
     );
+  }
+
+  Future<void> _refreshProductList(BuildContext context) async {
+    Provider.of<Products>(context, listen: false).getProducts();
   }
 }
