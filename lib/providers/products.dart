@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/product.dart';
 
@@ -46,21 +49,47 @@ class Products with ChangeNotifier {
     return _items.where((prods) => prods.isFavorite == true).toList();
   }
 
-  Product findProductById(String productId){
+  Product findProductById(String productId) {
     return _items.firstWhere((product) => product.id == productId);
   }
-  void addProduct(Product product){
-    _items.add(product);
+
+  Future<void> addProduct(Product product) async {
+    final url = Uri.https(
+        'shop-app-698be-default-rtdb.firebaseio.com', '/product.json');
+    try {
+      final response = await http.post(url,
+          body: json.encode({
+            'title': product.title,
+            'price': product.price,
+            'imageUrl': product.imageUrl,
+            'description': product.description,
+            'isFavorite': product.isFavorite
+          }));
+
+      if (response.body.isNotEmpty) {
+        var body = json.decode(response.body);
+        final newProduct = Product(
+            id: body['name'],
+            title: product.title,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            description: product.description);
+        _items.add(newProduct);
+        notifyListeners();
+      }
+    } catch (error) {
+      print('peoducts provider exp : $error');
+      throw error;
+    }
+  }
+
+  void updateProduct(Product product) {
+    var productToUpdate = _items.indexWhere((prod) => prod.id == product.id);
+    _items[productToUpdate] = product;
     notifyListeners();
   }
 
-  void updateProduct(Product product){
-   var productToUpdate =  _items.indexWhere((prod) => prod.id == product.id);
-   _items[productToUpdate] = product;
-   notifyListeners();
-  }
-
-  void deleteProduct(String productId){
+  void deleteProduct(String productId) {
     var productIndex = _items.indexWhere((product) => product.id == productId);
     _items.removeAt(productIndex);
     notifyListeners();

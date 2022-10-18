@@ -27,6 +27,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   // global key is needed to access the forms
   final _form = GlobalKey<FormState>();
   var _isInit = true;
+  var _isLoading = false;
 
   @override
   void initState() {
@@ -39,12 +40,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
     if (_isInit) {
       final productId = ModalRoute.of(context).settings.arguments as String;
       print('product id $productId');
-     if(productId != null){
-       _editedProduct =
-       Provider.of<Products>(context).findProductById(productId);
-     }
+      if (productId != null) {
+        _editedProduct =
+            Provider.of<Products>(context).findProductById(productId);
+      }
       if (_editedProduct.id != null) {
-        _initialValues ={
+        _initialValues = {
           'title': _editedProduct.title,
           'price': _editedProduct.price.toString(),
           'imageUrl': _editedProduct.imageUrl,
@@ -84,7 +85,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   // submit form
-  void _saveForm() {
+  Future<void> _saveForm() async {
     // this will calls the onSave method of every field, do your stuff in on save of your field.
     var isValid = _form.currentState.validate();
     if (!isValid) {
@@ -92,13 +93,38 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
     _form.currentState.save();
     print("save ${_editedProduct.id}");
-    if(_editedProduct.id != null){
-      Provider.of<Products>(context, listen: false).updateProduct(_editedProduct);
+    if (_editedProduct.id != null) {
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_editedProduct);
+      Navigator.of(context).pop();
+    } else {
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editedProduct)
+            .then((_) {
+          setState(() {
+            Navigator.of(context).pop();
+            _isLoading = false;
+          });
+        });
+      } catch (error) {
+        print("error caught $error");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(error.toString()),
+          action: SnackBarAction(
+              label: 'Ok',
+              onPressed: () {
+                setState(() {
+                  _isLoading = false;
+                });
+                ScaffoldMessenger.of(context).removeCurrentSnackBar();
+              }),
+        ));
+      }
     }
-    else{
-      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
-    }
-    Navigator.of(context).pop();
   }
 
   @override
@@ -106,6 +132,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Product'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                _saveForm();
+              },
+              icon: Icon(Icons.save))
+        ],
       ),
       body: Form(
           key: _form,
@@ -115,6 +148,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
               child: Padding(
                 padding: EdgeInsets.all(10),
                 child: Column(children: [
+                  if (_isLoading) Center(child: CircularProgressIndicator()),
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 5, horizontal: 1),
                     child: TextFormField(
@@ -146,7 +180,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 5, horizontal: 1),
                     child: TextFormField(
-                          initialValue: _initialValues['price'],
+                        initialValue: _initialValues['price'],
                         decoration: InputDecoration(
                           label: Text('Price'),
                         ),
@@ -178,7 +212,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 5, horizontal: 1),
                     child: TextFormField(
-                      initialValue: _initialValues['description'],
+                        initialValue: _initialValues['description'],
                         decoration: InputDecoration(
                           label: Text('Description'),
                         ),
@@ -219,9 +253,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               focusNode: _imageUrlFocusNode,
                               onEditingComplete: () {
                                 setState(() {});
-                              },
-                              onFieldSubmitted: (_) {
-                                _saveForm();
                               },
                               onSaved: (value) {
                                 _editedProduct = Product(
