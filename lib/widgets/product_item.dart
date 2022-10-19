@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/models/product.dart';
+import 'package:flutter_complete_guide/providers/products.dart';
 import 'package:flutter_complete_guide/screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -12,10 +13,19 @@ class ProductItem extends StatelessWidget {
         .pushNamed(ProductDetailScreen.routeName, arguments: productId);
   }
 
+  void showSnackBar(
+      ScaffoldMessengerState scaffold, String msg, bool isSuccess) {
+    scaffold.showSnackBar(SnackBar(
+      content: Text(msg),
+      backgroundColor: isSuccess ? Colors.green : Colors.red,
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context);
+    final scaffold = ScaffoldMessenger.of(context);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -39,8 +49,16 @@ class ProductItem extends StatelessWidget {
                   icon: Icon(product.isFavorite
                       ? Icons.favorite
                       : Icons.favorite_border_outlined),
-                  onPressed: () {
-                    product.toggleFavoriteStatus();
+                  onPressed: () async {
+                    try {
+                      await Provider.of<Product>(context, listen: false)
+                          .toggleFavoriteStatus()
+                          .then((_) {
+                        showSnackBar(scaffold,"Item added to favorites.", true);
+                      });
+                    } catch (error) {
+                      showSnackBar(scaffold,error.toString(), false);
+                    }
                   },
                   color: product.isFavorite
                       ? Colors.white
